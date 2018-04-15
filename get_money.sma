@@ -6,7 +6,7 @@ new bool:showmoney=true
 
 public plugin_init()
 {
-	register_plugin("Show TeamMates Money", "1.2", "DiGiTaL")
+	register_plugin("Show TeamMates Money", "1.3", "DiGiTaL")
 	register_event("HLTV", "NewRoundFreeze", "a", "1=0", "2=0")
 	register_logevent("newRound", 2, "1=Round_Start")
 	register_event("StatusValue", "EventStatusValue", "be", "1=2", "2!0")
@@ -62,6 +62,7 @@ public showMoneyMenu(pid)
 		get_players(players, num, "ae", szTeam)
 		for(new i=0;i<num;i++)
 		{
+			if(x <= 1) return PLUGIN_CONTINUE;
 			x = players[i]
 			get_user_name(x, teamMates, charsmax(teamMates))
 			formatex(menuItem, charsmax(menuItem), "\y%s\R\r$\w%i", teamMates, cs_get_user_money(x))
