@@ -1,17 +1,18 @@
 #include <amxmodx>
 #include <cstrike>
 
-new mode, syncObject;
+new mode, syncObject, fTime
 new bool:showmoney=true
 
 public plugin_init()
 {
-	register_plugin("Show TeamMates Money", "1.3", "DiGiTaL")
+	register_plugin("Show TeamMates Money", "1.4", "DiGiTaL")
 	register_event("HLTV", "NewRoundFreeze", "a", "1=0", "2=0")
 	register_logevent("newRound", 2, "1=Round_Start")
 	register_event("StatusValue", "EventStatusValue", "be", "1=2", "2!0")
-	mode = register_cvar("showMoney", "1")
 
+	mode = register_cvar("showMoney", "1")
+	fTime = get_cvar_pointer("mp_freezetime")
 	syncObject = CreateHudSyncObj()  
 }
 
@@ -32,6 +33,7 @@ public showMenu()
 		showMoneyMenu(pid)
 	}
 }
+
 public EventStatusValue(id)
 {
 	if(get_pcvar_num(mode) == 2)
@@ -54,15 +56,16 @@ public EventStatusValue(id)
 
 public showMoneyMenu(pid)
 {
-	if(get_pcvar_num(mode) == 1)
+	if(get_pcvar_num(mode) == 1 && get_pcvar_num(fTime) >= 2)
 	{
 		new menu = menu_create("\rTeam Mates \R Money", "handleMenu")
-		new players[32], num, x, szTeam[15], teamMates[32], menuItem[128]
+		new players[32], num, x, szTeam[15], teamMates[32], menuItem[128], self[32]
 		get_user_team(pid, szTeam, charsmax(szTeam))
+		get_user_name(pid, self, charsmax(self))
 		get_players(players, num, "ae", szTeam)
 		for(new i=0;i<num;i++)
 		{
-			if(x <= 1) return PLUGIN_CONTINUE;
+			if(num == 1) return PLUGIN_CONTINUE;
 			x = players[i]
 			get_user_name(x, teamMates, charsmax(teamMates))
 			formatex(menuItem, charsmax(menuItem), "\y%s\R\r$\w%i", teamMates, cs_get_user_money(x))
@@ -75,8 +78,7 @@ public showMoneyMenu(pid)
 }
 
 public handleMenu(id, menu, item) {
-	if(item == MENU_EXIT)
-	{
+	if(item == MENU_EXIT){
 		menu_destroy(menu)
 		return PLUGIN_CONTINUE
 	}
